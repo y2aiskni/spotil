@@ -1,4 +1,3 @@
 # app
 dist/
-cmd/*/*.yaml
-!cmd/*/*.example.yaml
+cmd/*/config.yaml
