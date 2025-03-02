@@ -1,0 +1,7 @@
+services:
+  redis:
+    image: redis:7.4.2
+    environment:
+      TZ: Asia/Tokyo
+    ports:
+      - 6379:6379
