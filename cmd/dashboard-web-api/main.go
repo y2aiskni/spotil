@@ -1,9 +1,11 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/alecthomas/kong"
+	"github.com/labstack/echo/v4"
+	"github.com/y2aiskni/spotil/internal/interface/api/handler"
 )
 
 var version = "0.0.0"
@@ -12,8 +14,27 @@ func main() {
 	ctx := kong.Parse(&args, &kong.Vars{"version": version})
 	switch ctx.Command() {
 	case "":
-		fmt.Println("execute!")
+		if err := run(); err != nil {
+			log.Fatalln(err)
+		}
 	default:
 		panic(ctx.Command())
 	}
+}
+
+func run() error {
+	e := echo.New()
+
+	// Handlers
+	healthHandler := handler.NewHealthHandler()
+
+	// Routes
+	v1 := e.Group("/api/v1")
+	healthHandler.RegisterRoutes(v1)
+
+	if err := e.Start(":1323"); err != nil {
+		log.Fatalln(err)
+	}
+
+	return nil
 }
