@@ -23,6 +23,11 @@ func main() {
 }
 
 func run() error {
+	config, err := NewConfigFromFile()
+	if err != nil {
+		return err
+	}
+
 	e := echo.New()
 
 	// Handlers
@@ -32,7 +37,7 @@ func run() error {
 	v1 := e.Group("/api/v1")
 	healthHandler.RegisterRoutes(v1)
 
-	if err := e.Start(":1323"); err != nil {
+	if err := e.Start(config.Server.Listen); err != nil {
 		log.Fatalln(err)
 	}
 

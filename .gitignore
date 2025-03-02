@@ -1,1 +1,4 @@
+# app
 dist/
+cmd/*/*.yaml
+!cmd/*/*.example.yaml
