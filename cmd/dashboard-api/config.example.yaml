@@ -1,2 +1,19 @@
 server:
   listen: "127.0.0.1:8080"
+
+session:
+  secret: "SECRET_KEY"
+  store:
+    prefix: "session_"
+
+cookie:
+  path: "/"
+  domain: "localhost"
+  max_age: 64800
+  secure: false
+
+redis:
+  address: "localhost:6379"
+  username: ""
+  password: ""
+  db: 0

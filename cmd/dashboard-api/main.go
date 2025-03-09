@@ -2,8 +2,12 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/alecthomas/kong"
+	"github.com/boj/redistore"
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/y2aiskni/spotil/internal/interface/api/handler"
 )
@@ -28,14 +32,33 @@ func run() error {
 		return err
 	}
 
+	store, err := redistore.NewRediStore(config.Redis.MaxIdle, "tcp", config.Redis.Address, config.Redis.Username, config.Redis.Password, []byte(config.Session.Secret))
+	if err != nil {
+		return err
+	}
+	store.SetKeyPrefix(config.Session.Store.Prefix)
+	store.Options = &sessions.Options{
+		Path:     config.Cookie.Path,
+		Domain:   config.Cookie.Domain,
+		Secure:   config.Cookie.Secure,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	}
+	store.SetMaxAge(config.Cookie.MaxAge)
+
 	e := echo.New()
+
+	// Middlewares
+	e.Use(session.Middleware(store))
 
 	// Handlers
 	healthHandler := handler.NewHealthHandler()
+	authHandler := handler.NewAuthHandler()
 
 	// Routes
 	v1 := e.Group("/api/v1")
 	healthHandler.RegisterRoutes(v1)
+	authHandler.RegisterRoutes(v1)
 
 	if err := e.Start(config.Server.Listen); err != nil {
 		log.Fatalln(err)
